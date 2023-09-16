@@ -50,16 +50,19 @@ const LoginPage = () => {
             let encryptRequest = encryptDataAes(requestBody)
             console.log(encryptRequest);
             try {
-                let response = await axios.post('/',
-                    encryptRequest)
+                let response = await axios.post('http://localhost:8000/api/v1/auth/login',
+                requestBody
+                    // {encryptRequest}
+                    )
                 if (response) {
                     console.log("login success")
-                    // localStorage.setItem('token', response.data.token)
-                    // navigate('/dashboard')
+                    console.log(response)
+                    localStorage.setItem('token', response.data.token)
+                    navigate('/dashboard')
                 }
             } catch (error) {
                 console.log(error);
-                alert(error.response.data.error)
+                // alert(error.response.data.error)
             }
 
         }

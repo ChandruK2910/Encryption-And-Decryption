@@ -21,13 +21,15 @@ async function register(req, res) {
 
   try {
     const savedUser = await user.save();
-    res.send({ user: savedUser });
+    // res.send({ user: savedUser });
+    if(savedUser) res.status(200).json({message:'user registered successfully',data : savedUser})
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).json({message:'internal server error', error: err});
   }
 }
 
 async function login(req, res) {
+  console.log(req.body);
   const user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(400).send("Email or password is wrong");
 

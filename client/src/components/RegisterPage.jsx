@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TextField, FormControl, Button } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom"
-import {decrypt, encrypt} from '../helpers/helper'
+import {decrypt, encrypt,encryptDataAes,decryptDataAes} from '../helpers/helper'
 import axios from "axios";
 
 
@@ -12,8 +12,64 @@ export const RegisterPage = () => {
     const [confirmPassword, setConfirmPassword] = useState("")
     const navigate = useNavigate()
 
-    const handleSubmit = ()=>{
+    const handleSubmit = async (event)=>{
+        event.preventDefault()
+        if(!name) alert('userName is mandatory!')
+        if(!email) alert('email is mandatory!')
+        if(!password) alert('please fill the password field')
+        if(!confirmPassword) alert('please fill the password field')
+        if(password != confirmPassword){
+alert(`password and confirm password must be same`)
+        }
+        if(name && email && password == confirmPassword){
+            let requestBody = {
+                username : name,
+                email,
+                password
+            }
+            console.log("requestBody--->",requestBody)
+            let encryptData = encryptDataAes(requestBody)
+            console.log("encrypt reqest--->",encryptData)
+            try {
+                let response = await axios.post('http://localhost:8000/api/v1/auth/register',
+                requestBody,
+                // {encryptData}
+                )
+                if(response){
+                    console.log('register successfull')
+                    console.log(response)
+                    handleLogin()
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    }
 
+    const handleLogin=async()=>{
+        if (email && password) {
+        
+            let requestBody = {email,password}
+            console.log(requestBody)
+            let encryptRequest = encryptDataAes(requestBody)
+            console.log(encryptRequest);
+            try {
+                let response = await axios.post('http://localhost:8000/api/v1/auth/login',
+                requestBody
+                    // {encryptRequest}
+                    )
+                if (response) {
+                    console.log("login success")
+                    console.log(response)
+                    localStorage.setItem('token', response.data.token)
+                    navigate('/dashboard')
+                }
+            } catch (error) {
+                console.log(error);
+                // alert(error.response.data.error)
+            }
+
+        }
     }
   return (
     <React.Fragment>
