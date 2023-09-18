@@ -51,8 +51,8 @@ const LoginPage = () => {
             console.log(encryptRequest);
             try {
                 let response = await axios.post('http://localhost:8000/api/v1/auth/login',
-                requestBody
-                    // {encryptRequest}
+                // requestBody
+                    {encryptRequest}
                     )
                 if (response) {
                     console.log("login success")

@@ -22,19 +22,19 @@ async function register(req, res) {
   try {
     const savedUser = await user.save();
     // res.send({ user: savedUser });
-    if(savedUser) res.status(200).json({message:'user registered successfully',data : savedUser})
+    if(savedUser) res.status(200).json({status: true,message:'user registered successfully',data : savedUser})
   } catch (err) {
-    res.status(400).json({message:'internal server error', error: err});
+    res.status(400).json({status:false,message:'internal server error', error: err});
   }
 }
 
 async function login(req, res) {
-  console.log(req.body);
+  console.log("email",req.body.email);
   const user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(400).send("Email or password is wrong");
+  if (!user) return res.status(400).json({status : false, message:'no registered email found'});
 
   const validPassword = await bcrypt.compare(req.body.password, user.password);
-  if (!validPassword) return res.status(400).send("Email or password is wrong");
+  if (!validPassword) return res.status(400).json({status: false,  message:'Incorrect password'});
 
   const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY);
   res

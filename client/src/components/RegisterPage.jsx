@@ -28,12 +28,12 @@ alert(`password and confirm password must be same`)
                 password
             }
             console.log("requestBody--->",requestBody)
-            let encryptData = encryptDataAes(requestBody)
-            console.log("encrypt reqest--->",encryptData)
+            let encryptRequest = encryptDataAes(requestBody)
+            console.log("encrypt reqest--->",encryptRequest)
             try {
                 let response = await axios.post('http://localhost:8000/api/v1/auth/register',
-                requestBody,
-                // {encryptData}
+                // requestBody,
+                {encryptRequest}
                 )
                 if(response){
                     console.log('register successfull')
@@ -55,8 +55,8 @@ alert(`password and confirm password must be same`)
             console.log(encryptRequest);
             try {
                 let response = await axios.post('http://localhost:8000/api/v1/auth/login',
-                requestBody
-                    // {encryptRequest}
+                // requestBody
+                    {encryptRequest}
                     )
                 if (response) {
                     console.log("login success")

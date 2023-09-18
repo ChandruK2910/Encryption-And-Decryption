@@ -7,9 +7,9 @@ const key = process.env.KEY;
 const iv = process.env.CIPHER_IV;
 
 
-router.post('/register', encryptRequestBody(key, iv), AuthController.register);
-router.post('/login', encryptRequestBody(key, iv), AuthController.login);
+router.post('/register', decryptResponseBody, AuthController.register);
+router.post('/login', decryptResponseBody, AuthController.login);
 
-router.use(decryptResponseBody(key, iv));
+// router.use(decryptResponseBody(key, iv));
 
 module.exports = router;
