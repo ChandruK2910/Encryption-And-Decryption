@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const { registrationSchema } = require("../utils/validation");
 
-async function register(req, res) {
+const register = async (req, res) => {
   const { error } = registrationSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -21,25 +21,114 @@ async function register(req, res) {
 
   try {
     const savedUser = await user.save();
-    // res.send({ user: savedUser });
-    if(savedUser) res.status(200).json({status: true,message:'user registered successfully',data : savedUser})
+    if (savedUser)
+      return res.status(200).json({
+        status: true,
+        message: "User registered successfully",
+        data: savedUser,
+      });
   } catch (err) {
-    res.status(400).json({status:false,message:'internal server error', error: err});
+    return res.status(400).json({
+      status: false,
+      message: "Internal server error",
+      error: err,
+    });
   }
-}
+};
 
-async function login(req, res) {
-  console.log("email",req.body.email);
+const login = async (req, res) => {
+  console.log("email", req.body.email);
   const user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(400).json({status : false, message:'no registered email found'});
+  if (!user)
+    return res.status(400).json({
+      status: false,
+      message: "No registered email found",
+    });
 
   const validPassword = await bcrypt.compare(req.body.password, user.password);
-  if (!validPassword) return res.status(400).json({status: false,  message:'Incorrect password'});
+  if (!validPassword)
+    return res.status(400).json({
+      status: false,
+      message: "Incorrect password",
+    });
 
   const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY);
   res
     .header("auth-token", token)
-    .send({ status: true, message: "login succesfully", token });
-}
+    .send({ status: true, message: "Login successful", token });
+};
 
-module.exports = { register, login };
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json({ status: true, users });
+  } catch (error) {
+    console.error({status: false, error});
+    res.status(500).send({ status: false, error: "Internal server error" });
+  }
+};
+
+const getUserById = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ status: false, error: "User not found" });
+    }
+
+    res.send({ status: true, user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: false, error: "Internal server error" });
+  }
+};
+
+const updateUser = async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          username: req.body.username,
+          email: req.body.email,
+        },
+      },
+      { new: true }
+    );
+
+    if (!user)
+      return res.status(404).send({ status: false, message: "User not found" });
+
+    res.send({ user });
+  } catch (err) {
+    res.status(400).send({ status: false, err });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    const user = await User.findByIdAndRemove(userId);
+
+    if (!user)
+      return res.status(404).send({ status: false, message: "User not found" });
+
+    res.send({ status: true, message: "User deleted" });
+  } catch (err) {
+    res.status(400).send({ status: false, err });
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  updateUser,
+  deleteUser,
+  getAllUsers,
+  getUserById,
+};
