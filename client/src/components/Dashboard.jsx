@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -11,45 +11,83 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit'
 import { Typography } from '@mui/material';
 import axios from 'axios';
+import UpdateDialog from './UpdateDialog';
+import {encryptDataAes,decryptDataAes} from '../helpers/helper'
 
 export const Dashboard = () => {
-  function createData(name, email) {
-    return { name, email};
-  }
+  const [data,setData] = useState(null)
+  const [isUpdated,setIsUpdated] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [itemId,setItemId] = useState('')
+
+  const openDialog = (id) => {
+    setIsDialogOpen(true);
+    setItemId(id)
+  };
+
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+  };
+
+  
+  const handleSubmit = async(name,email) => {
+    setIsDialogOpen(false);
+    if(itemId != ''){
+      console.log('Submitted value:', name,email,itemId);
+    }
+    try {
+      if(!email || !name){
+        console.log('email or name is missing')
+      }else{
+        let requestBody = {
+          username : name,
+          email
+        }
+        console.log('item',itemId);
+        let encryptRequest = encryptDataAes(requestBody)
+        console.log(encryptRequest);
+        const response = await axios.put(`http://localhost:8000/api/v1/auth/update/${itemId}`,
+        requestBody,
+        {headers:{'auth-token': localStorage.getItem('token')}}
+        )
+        if(response){
+          console.log(response)
+          setIsUpdated(!isUpdated) 
+        }
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
 
   useEffect(()=>{
-    // fetchData()
-  },[])
+    fetchData()
+  },[isUpdated])
 
   const fetchData = async()=>{
     try {
-      const response = await axios.get('')
+      const response = await axios.get('http://localhost:8000/api/v1/auth/getUser',{headers:{'auth-token': localStorage.getItem('token')}})
       if(response){
-        console.log(response)
+        console.log(response.data.data)
+        setData(response.data.data)
       }
     } catch (error) {
       console.log(error)
     }
   }
-  
-  const rows = [
-    createData('test','test@gmail.com'),
-    createData('test1','test1@gmail.com'),
-    createData('test2','test2@gmail.com'),
-    createData('test3','test3@gmail.com'),
-    createData('test4','test4@gmail.com'),
-    createData('test5','test5@gmail.com'),
-   
-  ];
-  const handleEdit = async(index)=>{
-    if(window.confirm('Are you sure want to edit')){
-      console.log('edit is clicked', index+1)
-    }
-  }
 
-  const handleDelete = async(index)=>{
+  const handleDelete = async(id)=>{
     if(window.confirm('Are you sure want to delete')){
-      console.log('delete is clicked', index+1)
+      console.log('delete is clicked', id)
+      try {
+        let response = await axios.delete(`http://localhost:8000/api/v1/auth/delete/${id}`,{headers:{'auth-token': localStorage.getItem('token')}})
+        if(response)
+        console.log(response)
+      const deleteData =data.filter((item)=>item._id !== id)
+      setData(deleteData)
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
   return (
@@ -68,27 +106,36 @@ export const Dashboard = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row,index) => (
+          {data?.map((row,index) => (
             <TableRow
-              key={row.name}
+              key={row._id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                {index+1}
+                {index+1 }
               </TableCell>
-              <TableCell align="right">{row.name}</TableCell>
+              <TableCell align="right">{row.username}</TableCell>
               <TableCell align="right">{row.email}</TableCell>
-              <TableCell align="right"><IconButton aria-label="edit" size="small" onClick={()=>handleEdit(index)}>
-        <EditIcon  />
+              <TableCell align="right"><IconButton aria-label="edit" size="small" onClick={()=>openDialog(row._id)}>
+        <EditIcon   />
+       
       </IconButton></TableCell>
-              <TableCell align="right"><IconButton aria-label="delete" size="small" onClick={()=>handleDelete(index)}>
+              <TableCell align="right"><IconButton aria-label="delete" size="small" onClick={()=>handleDelete(row._id)}>
         <DeleteIcon   />
       </IconButton></TableCell>
+      
             </TableRow>
+            
           ))}
         </TableBody>
       </Table>
     </TableContainer>
+    <UpdateDialog
+        open={isDialogOpen}
+        onClose={closeDialog}
+        onSubmit={handleSubmit}
+      />
+    
     </>
   )
 }

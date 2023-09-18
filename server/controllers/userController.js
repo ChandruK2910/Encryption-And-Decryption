@@ -61,7 +61,7 @@ const login = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
-    res.json({ status: true, users });
+    res.json({ status: true, data :users });
   } catch (error) {
     console.error({status: false, error});
     res.status(500).send({ status: false, error: "Internal server error" });
@@ -78,7 +78,7 @@ const getUserById = async (req, res) => {
       return res.status(404).json({ status: false, error: "User not found" });
     }
 
-    res.send({ status: true, user });
+    res.send({ status: true, data :user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ status: false, error: "Internal server error" });
@@ -103,14 +103,14 @@ const updateUser = async (req, res) => {
     if (!user)
       return res.status(404).send({ status: false, message: "User not found" });
 
-    res.send({ user });
+    res.send({ message:'user updated successfully',data:user });
   } catch (err) {
     res.status(400).send({ status: false, err });
   }
 };
 
 const deleteUser = async (req, res) => {
-  const userId = req.user._id;
+  const userId = req.params.userId;
 
   try {
     const user = await User.findByIdAndRemove(userId);

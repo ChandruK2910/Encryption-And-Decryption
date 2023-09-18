@@ -19,13 +19,13 @@ router.get(
 router.put(
   "/update/:userId",
   authentication.authenticateToken,
-  authorization.authorizeToken,
+  // authorization.authorizeToken,
   AuthController.updateUser
 );
 router.delete(
   "/delete/:userId",
   authentication.authenticateToken,
-  authorization.authorizeToken,
+  // authorization.authorizeToken,
   AuthController.deleteUser
 );
 
