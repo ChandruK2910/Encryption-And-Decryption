@@ -32,16 +32,19 @@ alert(`password and confirm password must be same`)
             console.log("encrypt reqest--->",encryptRequest)
             try {
                 let response = await axios.post('http://localhost:8000/api/v1/auth/register',
-                requestBody,
-                // {encryptRequest}
+                // requestBody,
+                {encryptRequest}
                 )
                 if(response){
-                    console.log('register successfull')
-                    console.log(response)
+                    console.log('encrypted response --->',response)
+                    response = await decryptDataAes(response.data)
+                    console.log('decrypted response----->',response)
                     handleLogin()
                 }
             } catch (error) {
-                console.log(error)
+                console.log("encrypted error----->",error)
+                error = await decryptDataAes(error.response.data)
+                console.log("decrypted error--->",error);
             }
         }
     }
@@ -55,18 +58,21 @@ alert(`password and confirm password must be same`)
             console.log(encryptRequest);
             try {
                 let response = await axios.post('http://localhost:8000/api/v1/auth/login',
-                requestBody
-                    // {encryptRequest}
+                // requestBody
+                    {encryptRequest}
                     )
                 if (response) {
                     console.log("login success")
-                    console.log(response)
-                    localStorage.setItem('token', response.data.token)
+                    console.log("encrypted response --->",response)
+                    response = await decryptDataAes(response.data)
+                    console.log('decrypted response --->',response)
+                    localStorage.setItem('token', response.token)
                     navigate('/dashboard')
                 }
             } catch (error) {
-                console.log(error);
-                // alert(error.response.data.error)
+                console.log("encrypted error----->",error)
+        error = await decryptDataAes(error.response.data)
+        console.log("decrypted error--->",error);
             }
 
         }

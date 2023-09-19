@@ -2,13 +2,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const { registrationSchema } = require("../utils/validation");
+const {encryptResponseBody} = require('../middlewares/encryptionMiddleware')
 
 const register = async (req, res) => {
   const { error } = registrationSchema.validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).send(encryptResponseBody(error.details[0].message));
 
   const emailExists = await User.findOne({ email: req.body.email });
-  if (emailExists) return res.status(400).send("Email already exists");
+  if (emailExists) return res.status(400).send(encryptResponseBody("Email already exists"));
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -22,17 +23,17 @@ const register = async (req, res) => {
   try {
     const savedUser = await user.save();
     if (savedUser)
-      return res.status(200).json({
+      return res.status(200).send(encryptResponseBody({
         status: true,
         message: "User registered successfully",
         data: savedUser,
-      });
+      }));
   } catch (err) {
-    return res.status(400).json({
+    return res.status(400).send(encryptResponseBody({
       status: false,
       message: "Internal server error",
       error: err,
-    });
+    }));
   }
 };
 
@@ -40,31 +41,31 @@ const login = async (req, res) => {
   console.log("email", req.body.email);
   const user = await User.findOne({ email: req.body.email });
   if (!user)
-    return res.status(400).json({
+    return res.status(400).json(encryptResponseBody({
       status: false,
       message: "No registered email found",
-    });
+    }));
 
   const validPassword = await bcrypt.compare(req.body.password, user.password);
   if (!validPassword)
-    return res.status(400).json({
+    return res.status(400).json(encryptResponseBody({
       status: false,
       message: "Incorrect password",
-    });
+    }));
 
   const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY);
   res
     .header("auth-token", token)
-    .send({ status: true, message: "Login successful", token });
+    .send(encryptResponseBody({ status: true, message: "Login successful", token }));
 };
 
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
-    res.json({ status: true, data :users });
+    res.status(200).send(encryptResponseBody({ status: true, data :users }));
   } catch (error) {
     console.error({status: false, error});
-    res.status(500).send({ status: false, error: "Internal server error" });
+    res.status(500).send(encryptResponseBody({ status: false, error: "Internal server error" }));
   }
 };
 
@@ -101,11 +102,11 @@ const updateUser = async (req, res) => {
     );
 
     if (!user)
-      return res.status(404).send({ status: false, message: "User not found" });
+      return res.status(404).send(encryptResponseBody({ status: false, message: "User not found" }));
 
-    res.send({ message:'user updated successfully',data:user });
+    res.send(encryptResponseBody({ message:'user updated successfully',data:user }));
   } catch (err) {
-    res.status(400).send({ status: false, err });
+    res.status(400).send(encryptResponseBody({ status: false, err }));
   }
 };
 
@@ -116,11 +117,11 @@ const deleteUser = async (req, res) => {
     const user = await User.findByIdAndRemove(userId);
 
     if (!user)
-      return res.status(404).send({ status: false, message: "User not found" });
+      return res.status(404).send(encryptResponseBody({ status: false, message: "User not found" }));
 
-    res.send({ status: true, message: "User deleted" });
+    res.send(encryptResponseBody({ status: true, message: "User deleted" }));
   } catch (err) {
-    res.status(400).send({ status: false, err });
+    res.status(400).send(encryptResponseBody({ status: false, err }));
   }
 };
 

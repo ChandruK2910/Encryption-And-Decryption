@@ -46,17 +46,22 @@ export const Dashboard = () => {
         console.log('item',itemId);
         let encryptRequest = encryptDataAes(requestBody)
         console.log(encryptRequest);
-        const response = await axios.put(`http://localhost:8000/api/v1/auth/update/${itemId}`,
-        requestBody,
+        let response = await axios.put(`http://localhost:8000/api/v1/auth/update/${itemId}`,
+        // requestBody,
+        {encryptRequest},
         {headers:{'auth-token': localStorage.getItem('token')}}
         )
         if(response){
-          console.log(response)
+          console.log("encrypted response----->",response.data)
+          response = await decryptDataAes(response.data)
+          console.log("response after decryption",response)
           setIsUpdated(!isUpdated) 
         }
       }
     } catch (error) {
-      console.log(error)
+      console.log("encrypted error----->",error)
+        error = await decryptDataAes(error.response.data)
+        console.log("decrypted error--->",error);
     }
   };
 
@@ -66,13 +71,17 @@ export const Dashboard = () => {
 
   const fetchData = async()=>{
     try {
-      const response = await axios.get('http://localhost:8000/api/v1/auth/getUser',{headers:{'auth-token': localStorage.getItem('token')}})
+      let response = await axios.get('http://localhost:8000/api/v1/auth/getUser',{headers:{'auth-token': localStorage.getItem('token')}})
       if(response){
-        console.log(response.data.data)
-        setData(response.data.data)
+        console.log("encrypted response----->",response.data)
+        response = await decryptDataAes(response.data)
+        console.log("response after decryption",response)
+        setData(response.data)
       }
     } catch (error) {
-      console.log(error)
+      console.log("encrypted error----->",error)
+      error = await decryptDataAes(error.response.data)
+      console.log("decrypted error--->",error);
     }
   }
 
@@ -82,11 +91,15 @@ export const Dashboard = () => {
       try {
         let response = await axios.delete(`http://localhost:8000/api/v1/auth/delete/${id}`,{headers:{'auth-token': localStorage.getItem('token')}})
         if(response)
-        console.log(response)
+        console.log("encrypted response----->",response.data)
+        response = await decryptDataAes(response.data)
+        console.log("response after decryption",response)
       const deleteData =data.filter((item)=>item._id !== id)
       setData(deleteData)
       } catch (error) {
-        console.log(error)
+        console.log("encrypted error----->",error)
+        error = await decryptDataAes(error.response.data)
+        console.log("decrypted error--->",error);
       }
     }
   }

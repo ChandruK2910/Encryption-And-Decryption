@@ -31,6 +31,8 @@ const UpdateDialog = ({ open, onClose, onSubmit }) => {
           value={name}
           onChange={handleUsername}
         />
+        <br></br>
+        <br></br>
         <TextField
           label="Email"
           variant="outlined"
@@ -38,6 +40,7 @@ const UpdateDialog = ({ open, onClose, onSubmit }) => {
           value={email}
           onChange={handleEmail}
         />
+        <br></br>
         <br></br>
         <Button variant="contained" onClick={handleSubmit}>
           Submit

@@ -41,10 +41,10 @@ export function encryptDataAes(data){
     return cipher.output.toHex()
 }
 
-export function decryptDataAes(cipherText){
+export async function decryptDataAes(cipherText){
     const decipher = forge.cipher.createDecipher('AES-CBC',forge.util.hexToBytes(KEY))
     decipher.start({iv : forge.util.hexToBytes(CIPHER_IV)})
     decipher.update(forge.util.createBuffer(forge.util.hexToBytes(cipherText)))
     decipher.finish()
-    return decipher.output.toString('utf8')
+    return JSON.parse(decipher.output.toString('utf8'))
 }
