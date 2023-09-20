@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, TextField, Button } from '@mui/material';
 
+
 const UpdateDialog = ({ open, onClose, onSubmit }) => {
   const [email, setEmail] = useState('');
   const [name,setName] = useState('')
@@ -21,9 +22,10 @@ const UpdateDialog = ({ open, onClose, onSubmit }) => {
   };
 
   return (
-    <Dialog open={open} onClose={true}>
+    <Dialog open={open} onClose={true} fullWidth maxWidth='sm'>
       <DialogTitle>Update Dialog</DialogTitle>
       <DialogContent>
+        <br></br>
         <TextField
           label="User Name"
           variant="outlined"

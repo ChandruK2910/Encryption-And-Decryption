@@ -108,14 +108,14 @@ export const Dashboard = () => {
     <Typography><b>Users List</b></Typography>
     <br></br>
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
+      <Table sx={{ minWidth: 650 }} aria-label="simple table" style={{width:1200}}>
+        <TableHead style={{background:'#dbd9d9'}}>
           <TableRow>
-            <TableCell><b>S.No</b></TableCell>
-            <TableCell align="right"><b>UserName</b></TableCell>
-            <TableCell align="right"><b>Email</b></TableCell>
-            <TableCell align="right"><b>Edit</b></TableCell>
-            <TableCell align="right"><b>Delete</b></TableCell>
+            <TableCell align="center"><b>S.No</b></TableCell>
+            <TableCell align="center"><b>UserName</b></TableCell>
+            <TableCell align="center"><b>Email</b></TableCell>
+            <TableCell align="center"><b>Edit</b></TableCell>
+            <TableCell align="center"><b>Delete</b></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -124,16 +124,16 @@ export const Dashboard = () => {
               key={row._id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-              <TableCell component="th" scope="row">
+              <TableCell align="center" component="th" scope="row">
                 {index+1 }
               </TableCell>
-              <TableCell align="right">{row.username}</TableCell>
-              <TableCell align="right">{row.email}</TableCell>
-              <TableCell align="right"><IconButton aria-label="edit" size="small" onClick={()=>openDialog(row._id)}>
+              <TableCell align="center">{row.username}</TableCell>
+              <TableCell align="center">{row.email}</TableCell>
+              <TableCell align="center"><IconButton aria-label="edit" size="small" onClick={()=>openDialog(row._id)}>
         <EditIcon   />
        
       </IconButton></TableCell>
-              <TableCell align="right"><IconButton aria-label="delete" size="small" onClick={()=>handleDelete(row._id)}>
+              <TableCell align="center"><IconButton aria-label="delete" size="small" onClick={()=>handleDelete(row._id)}>
         <DeleteIcon   />
       </IconButton></TableCell>
       
